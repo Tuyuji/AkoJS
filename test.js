@@ -77,3 +77,18 @@ Deno.test("Parse vector limits", () => {
     const akoSrc = "v5 1x2x3x4x5";
     assertThrows(() => ako.parse(akoSrc));
 });
+
+Deno.test("Parse and serialize", () => {
+    const data = {
+        player: {
+            username: "Miku",
+            level: 39
+        },
+        window: {
+            size: [1280, 720, 59.9]
+        }
+    };
+
+    const newData = ako.parse(ako.serialize(data, false));
+    assertEquals(data, newData);
+});
