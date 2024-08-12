@@ -121,6 +121,7 @@ const TokenType = Object.freeze({
     CloseBrace: 10,
     OpenDBrace: 11,
     CloseDBrace: 12,
+    VectorCross: 13,
 });
 
 /**
@@ -285,6 +286,10 @@ function _tokenize(p_src)
                 }
                 tokens.push(_make_token(TokenType.CloseBrace, null, startRegion, currentLocation));
                 continue;
+            case 'x':
+                consume();
+                tokens.push(_make_token(TokenType.VectorCross, null, startRegion, currentLocation));
+                continue;
         }
 
         if(isalpha(c) || c === '_')
@@ -413,10 +418,35 @@ function _parse(p_tokens)
                 return parseTable();
             case TokenType.Semicolon:
             case TokenType.Bool:
-            case TokenType.Int:
-            case TokenType.Float:
             case TokenType.String:
                 return consume().value;
+            case TokenType.Int:
+            case TokenType.Float: {
+                //check if we have a vector cross
+                const startLoc = peek(0).locStart;
+                if (peek(1) !== null && peek(1).type === TokenType.VectorCross) {
+                    const array = [];
+                    while (peek(0) !== null) {
+                        if (!(peek(0).type === TokenType.Int || peek(0).type === TokenType.Float)) {
+                            //cant do vector with anything else
+                            throw new Error("Trying to use non vector type in vector at " + _fmt_text_location(peek(0).locStart));
+                        }
+
+                        array.push(consume().value);
+                        if (peek() !== null && peek().type === TokenType.VectorCross) {
+                            //Should continue
+                            consume(); //Consume that cross
+                        } else {
+                            //No continue to vector, return what we got
+                            if (array.length > 4) {
+                                throw new Error("Vector size is greater than 4 at " + _fmt_text_location(startLoc) + " to " + _fmt_text_location(peek(-1).locEnd))
+                            }
+                            return array;
+                        }
+                    }
+                }
+                return consume().value;
+            }
             default:
                 throw new Error('Unsupported type "' + peek().type + '" at ' + _fmt_text_location(peek().locStart));
         }

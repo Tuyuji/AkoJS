@@ -1,5 +1,5 @@
 import * as ako from './ako.js';
-import { assertEquals } from "jsr:@std/assert@1";
+import { assertEquals, assertThrows } from "jsr:@std/assert@1";
 
 Deno.test("Generic serialize", () => {
     const data = {
@@ -60,4 +60,20 @@ Deno.test("Parse Generic", () => {
         "m i k u": 39.39,
         viva: {viva: "happy"}
     });
+});
+
+Deno.test("Parse vector", () => {
+    const akoSrc = "v2 1x2\nv3 1x2.5x3\nv4 1x2.5x3x3.5";
+
+    const result = ako.parse(akoSrc);
+    assertEquals(result, {
+        v2: [1,2],
+        v3: [1, 2.5, 3],
+        v4: [1, 2.5, 3, 3.5],
+    });
+});
+
+Deno.test("Parse vector limits", () => {
+    const akoSrc = "v5 1x2x3x4x5";
+    assertThrows(() => ako.parse(akoSrc));
 });
