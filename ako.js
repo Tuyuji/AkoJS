@@ -70,8 +70,8 @@ function _serialize(p_thing, p_indent, p_cur_indent, p_firstrun = false){
         }
 
         for(const [key, value] of Object.entries(p_thing)){
-            let keystr = key.toString();
-            let valuestr = _serialize(value, p_indent, indent_stringing);
+            const keystr = key.toString();
+            const valuestr = _serialize(value, p_indent, indent_stringing);
 
             let indent = "";
             if(p_firstrun){
@@ -189,9 +189,9 @@ function _tokenize(p_src)
     let index = 0;
 
     /** @type {TextLocation} */
-    let startRegion = {line: 1, column: 1};
+    const startRegion = {line: 1, column: 1};
     /** @type {TextLocation} */
-    let currentLocation = {line: 1, column: 1};
+    const currentLocation = {line: 1, column: 1};
 
     /** Makes a location using
      * @returns {TextLocation} */
@@ -234,7 +234,7 @@ function _tokenize(p_src)
     }
 
     /** @type {[Token]}*/
-    let tokens = [];
+    const tokens = [];
     while (peek() !== null)
     {
         const c = peek();
@@ -433,7 +433,7 @@ function _parse(p_tokens)
             throw new Error("Open double brace expected");
         }
 
-        let array = [];
+        const array = [];
 
         while (peek() !== null && peek().type !== TokenType.CloseDBrace)
         {
@@ -465,7 +465,7 @@ function _parse(p_tokens)
             }
         }
 
-        let table = {};
+        const table = {};
 
         while (peek() !== null && peek().type !== TokenType.CloseBrace)
         {
@@ -529,8 +529,8 @@ function _parse(p_tokens)
         let CTValueId = null;
         while (peek() !== null && (peek().type === TokenType.Identifier || peek().type === TokenType.String))
         {
-            let id = consume().value;
-            let stillMore = checkPeekType(TokenType.Dot);
+            const id = consume().value;
+            const stillMore = checkPeekType(TokenType.Dot);
 
             if(!stillMore)
             {
