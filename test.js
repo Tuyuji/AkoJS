@@ -1,4 +1,4 @@
-import ako from './ako.js';
+import * as ako from './ako.js';
 import { assertEquals } from "jsr:@std/assert@1";
 
 Deno.test("Generic serialize", () => {

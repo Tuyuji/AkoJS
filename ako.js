@@ -1,5 +1,4 @@
 'use strict';
-var ako = ako || {};
 
 function _make_indent(p_indent, p_size){
     return p_indent.repeat(p_size);
@@ -24,7 +23,7 @@ function _serialize(p_thing, p_indent, p_cur_indent, p_firstrun = false){
         return ';';
     }
 
-    var end_statement = "";
+    let end_statement = "";
     if(p_indent.length !== 0){
         end_statement += "\n";
     }else{
@@ -64,17 +63,17 @@ function _serialize(p_thing, p_indent, p_cur_indent, p_firstrun = false){
     }
     if(typeof p_thing === 'object'){
         s = "";
-        var indent_stringing = 0;
+        let indent_stringing = 0;
         if(!p_firstrun){
             s += "[" + end_statement;
             indent_stringing = p_cur_indent + 1;
         }
 
         for(const [key, value] of Object.entries(p_thing)){
-            var keystr = key.toString();
-            var valuestr = _serialize(value, p_indent, indent_stringing);
+            let keystr = key.toString();
+            let valuestr = _serialize(value, p_indent, indent_stringing);
 
-            var indent = "";
+            let indent = "";
             if(p_firstrun){
                 indent = _make_indent(p_indent, 0);
             }else{
@@ -235,7 +234,7 @@ function _tokenize(p_src)
     }
 
     /** @type {[Token]}*/
-    var tokens = [];
+    let tokens = [];
     while (peek() !== null)
     {
         const c = peek();
@@ -290,7 +289,7 @@ function _tokenize(p_src)
 
         if(isalpha(c) || c === '_')
         {
-            var identifier = "";
+            let identifier = "";
             while (peek() !== null && (isalphanum(peek()) || peek() === '_'))
             {
                 identifier += consume();
@@ -301,7 +300,7 @@ function _tokenize(p_src)
 
         if(isdigit(c))
         {
-            var num = "";
+            let num = "";
             while(peek() !== null && isdigit(peek()))
             {
                 num += consume();
@@ -325,7 +324,7 @@ function _tokenize(p_src)
         if(c === '"')
         {
             consume();
-            var str = "";
+            let str = "";
             while (peek() !== null && peek() !== '"')
             {
                 if(peek() === '\\')
@@ -434,7 +433,7 @@ function _parse(p_tokens)
             throw new Error("Open double brace expected");
         }
 
-        var array = [];
+        let array = [];
 
         while (peek() !== null && peek().type !== TokenType.CloseDBrace)
         {
@@ -466,7 +465,7 @@ function _parse(p_tokens)
             }
         }
 
-        var table = {};
+        let table = {};
 
         while (peek() !== null && peek().type !== TokenType.CloseBrace)
         {
@@ -515,7 +514,7 @@ function _parse(p_tokens)
         }
 
         /** @type {null|Token}*/
-        var valueFirst = null;
+        let valueFirst = null;
         if(peek().type === TokenType.Bool || peek().type === TokenType.Semicolon)
         {
             valueFirst = consume();
@@ -526,12 +525,12 @@ function _parse(p_tokens)
             throw new Error("Expected an identifier or string.");
         }
 
-        var currentTable = table;
-        var CTValueId = null;
+        let currentTable = table;
+        let CTValueId = null;
         while (peek() !== null && (peek().type === TokenType.Identifier || peek().type === TokenType.String))
         {
-            var id = consume().value;
-            var stillMore = checkPeekType(TokenType.Dot);
+            let id = consume().value;
+            let stillMore = checkPeekType(TokenType.Dot);
 
             if(!stillMore)
             {
@@ -588,7 +587,7 @@ function _parse(p_tokens)
     }
     else
     {
-        var shouldIgnoreBraces = true;
+        let shouldIgnoreBraces = true;
         if(peek().type === TokenType.OpenBrace)
         {
             shouldIgnoreBraces = false;
@@ -599,8 +598,8 @@ function _parse(p_tokens)
 }
 
 //public serialise.
-ako.serialize = function(thing, do_formatting = true, use_spaces = false){
-    var fmt = "\t";
+export function serialize(thing, do_formatting = true, use_spaces = false){
+    let fmt = "\t";
     if(use_spaces && do_formatting)
     {
         fmt = "    ";
@@ -610,15 +609,13 @@ ako.serialize = function(thing, do_formatting = true, use_spaces = false){
         fmt = "";
     }
     return _serialize(thing, fmt, 0, true);
-};
+}
 
 /**
  * Parse Ako string into a JS Object or Array.
  * @param {string} src
  * @returns {Object | Array | null}
  */
-ako.parse = function(src) {
+export function parse(src) {
     return _parse(_tokenize(src));
 }
-
-export default ako;
