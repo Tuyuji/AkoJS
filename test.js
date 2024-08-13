@@ -92,3 +92,7 @@ Deno.test("Parse and serialize", () => {
     const newData = ako.parse(ako.serialize(data, false));
     assertEquals(data, newData);
 });
+
+Deno.test("Unexpected char", () => {
+    assertThrows(()=> ako.parse("hm !"));
+})

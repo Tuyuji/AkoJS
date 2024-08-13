@@ -363,6 +363,8 @@ function _tokenize(p_src)
             tokens.push(_make_token(TokenType.String, str, startRegion, currentLocation));
             continue;
         }
+
+        throw new Error("Unexpected character '" + c + "' at " + _fmt_text_location(currentLocation));
     }
 
     return tokens;
