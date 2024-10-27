@@ -1,2 +1,2 @@
 // @ts-types="./ako.d.ts"
-export * from './ako.js'
+export * from "./ako.js";

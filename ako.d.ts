@@ -1,9 +1,9 @@
 type JSONValue =
-    | string
-    | number
-    | boolean
-    | { [key: string]: JSONValue }
-    | JSONValue[];
+  | string
+  | number
+  | boolean
+  | { [key: string]: JSONValue }
+  | JSONValue[];
 
 /**
  * Serializes a JSON-compatible object or array into a formatted string.
@@ -12,7 +12,11 @@ type JSONValue =
  * @param use_spaces - Optional. If `do_formatting` is true, determines whether to use spaces instead of tabs (default: false).
  * @returns A formatted string representation of the input.
  */
-export function serialize(thing: JSONValue, do_formatting?: boolean, use_spaces?: boolean): string;
+export function serialize(
+  thing: JSONValue,
+  do_formatting?: boolean,
+  use_spaces?: boolean,
+): string;
 
 /**
  * Parses an Ako-formatted string into a JavaScript object or array.
