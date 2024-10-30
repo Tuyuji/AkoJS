@@ -1,6 +1,11 @@
 import * as ako from "./ako.js";
 import { assertEquals, assertThrows } from "jsr:@std/assert@1";
 
+Deno.test("Parse nothing", () => {
+  assertEquals(ako.parse(null), null);
+  assertEquals(ako.parse(""), null);
+});
+
 Deno.test("Generic serialize", () => {
   const data = {
     "somevec": [
@@ -60,6 +65,15 @@ Deno.test("Parse Generic", () => {
   assertEquals(result, {
     "m i k u": 39.39,
     viva: { viva: "happy" },
+  });
+});
+
+Deno.test("Simple string escape", () => {
+  const akoSrc = 'abc "1 \\"2\\" 3"';
+
+  const result = ako.parse(akoSrc);
+  assertEquals(result, {
+    abc: "1 \"2\" 3"
   });
 });
 

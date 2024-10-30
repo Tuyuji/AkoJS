@@ -186,6 +186,14 @@ function isdigit(ch) {
  * @private
  */
 function _tokenize(p_src) {
+  /** @type {[Token]}*/
+  const tokens = [];
+
+  //Nothing in p_src
+  if(!p_src){
+    return tokens;
+  }
+
   let index = 0;
 
   /** @type {TextLocation} */
@@ -225,8 +233,6 @@ function _tokenize(p_src) {
     return p_src[index + p_offset];
   }
 
-  /** @type {[Token]}*/
-  const tokens = [];
   while (peek() !== null) {
     const c = peek();
     if (c === " " || c === "\n" || c === "\t") {
