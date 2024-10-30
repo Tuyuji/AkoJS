@@ -1,5 +1,5 @@
 import * as ako from "./ako.js";
-import { assertEquals, assertThrows } from "jsr:@std/assert@1";
+import { assert, assertEquals, assertThrows } from "jsr:@std/assert@1";
 
 Deno.test("Parse nothing", () => {
   assertEquals(ako.parse(null), null);
@@ -73,7 +73,7 @@ Deno.test("Simple string escape", () => {
 
   const result = ako.parse(akoSrc);
   assertEquals(result, {
-    abc: "1 \"2\" 3"
+    abc: '1 "2" 3',
   });
 });
 
@@ -110,6 +110,25 @@ Deno.test("Parse and serialize", () => {
 
 Deno.test("Unexpected char", () => {
   assertThrows(() => ako.parse("hm !"));
+});
+
+Deno.test("Invalid vector", () => {
+  const thrownerror = assertThrows(() => ako.parse("ivt 200x100x"));
+  //A bit hacky
+  assert(
+    thrownerror.message.includes("Expected a number after vector delimiter"),
+  );
+});
+
+Deno.test("Identifier with X", () => {
+  //Vectors use X as a delimiter so make sure that doesn't cross paths
+  const data = ako.parse("x86_64 2");
+  assertEquals(data, { x86_64: 2 });
+
+  //make sure vectors still work as expected
+
+  const data_2ndPass = ako.parse("x86_64 2x2");
+  assertEquals(data_2ndPass, { x86_64: [2, 2] });
 });
 
 Deno.test("Comments", () => {

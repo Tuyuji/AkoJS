@@ -190,7 +190,7 @@ function _tokenize(p_src) {
   const tokens = [];
 
   //Nothing in p_src
-  if(!p_src){
+  if (!p_src) {
     return tokens;
   }
 
@@ -231,6 +231,47 @@ function _tokenize(p_src) {
       return null;
     }
     return p_src[index + p_offset];
+  }
+
+  /**
+   * Will use the current char index to try and parse a digit.
+   * If successful the token will be in the tokens array.
+   * @return {boolean} Returns true if a number could be parsed.
+   */
+  function parse_digit() {
+    const c = peek();
+    if (isdigit(c)) {
+      let num = "";
+      while (peek() !== null && isdigit(peek())) {
+        num += consume();
+      }
+      if (peek() !== null && peek() === ".") {
+        num += consume();
+        while (peek() !== null && isdigit(peek())) {
+          num += consume();
+        }
+        tokens.push(
+          _make_token(
+            TokenType.Float,
+            Number(num),
+            startRegion,
+            currentLocation,
+          ),
+        );
+        return true;
+      } else {
+        tokens.push(
+          _make_token(
+            TokenType.Int,
+            Number(num),
+            startRegion,
+            currentLocation,
+          ),
+        );
+        return true;
+      }
+    }
+    return false;
   }
 
   while (peek() !== null) {
@@ -317,17 +358,6 @@ function _tokenize(p_src) {
           _make_token(TokenType.CloseBrace, null, startRegion, currentLocation),
         );
         continue;
-      case "x":
-        consume();
-        tokens.push(
-          _make_token(
-            TokenType.VectorCross,
-            null,
-            startRegion,
-            currentLocation,
-          ),
-        );
-        continue;
     }
 
     if (isalpha(c) || c === "_") {
@@ -346,30 +376,44 @@ function _tokenize(p_src) {
       continue;
     }
 
-    if (isdigit(c)) {
-      let num = "";
-      while (peek() !== null && isdigit(peek())) {
-        num += consume();
-      }
-      if (peek() !== null && peek() === ".") {
-        num += consume();
-        while (peek() !== null && isdigit(peek())) {
-          num += consume();
+    if (parse_digit()) {
+      //we did parse a digit!
+
+      //vectors are allowed to start now, check if a vector is starting
+      if (peek() === "x") {
+        //go into vector mode
+
+        while (peek() !== null && peek() === "x") {
+          //this loop is gonna keep going until parse_digit fails or the next char isn't x
+
+          //consume the X
+          const vector_delimiter = currentLocation;
+          consume();
+          tokens.push(
+            _make_token(
+              TokenType.VectorCross,
+              null,
+              startRegion,
+              currentLocation,
+            ),
+          );
+
+          //should have a digit
+          if (!parse_digit()) {
+            //failed to parse digit and we had an X before, this isn't valid Ako.
+            throw new Error(
+              `Expected a number after vector delimiter at ${
+                _fmt_text_location(vector_delimiter)
+              }`,
+            );
+          }
         }
-        tokens.push(
-          _make_token(
-            TokenType.Float,
-            Number(num),
-            startRegion,
-            currentLocation,
-          ),
-        );
+        //loop finished
+        continue;
       } else {
-        tokens.push(
-          _make_token(TokenType.Int, Number(num), startRegion, currentLocation),
-        );
+        //normal digit
+        continue;
       }
-      continue;
     }
 
     if (c === '"') {
