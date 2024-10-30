@@ -314,6 +314,7 @@ function _tokenize(p_src) {
           break;
         }
 
+        consume();
         tokens.push(
           _make_token(TokenType.Bool, c === "+", startRegion, currentLocation),
         );
