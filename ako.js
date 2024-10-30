@@ -202,7 +202,7 @@ function _tokenize(p_src) {
 
   function consume() {
     if (index >= p_src.length) {
-      return "\0";
+      return null;
     }
 
     const next = p_src[index++];
@@ -231,6 +231,19 @@ function _tokenize(p_src) {
     const c = peek();
     if (c === " " || c === "\n" || c === "\t") {
       consume();
+      continue;
+    }
+
+    if (c === "#") {
+      //Comment, skip until new line
+      consume();
+      const comment_line = currentLocation.line;
+      while (currentLocation.line === comment_line) {
+        if (consume() === null) {
+          //no more text
+          break;
+        }
+      }
       continue;
     }
 

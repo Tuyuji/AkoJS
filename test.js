@@ -97,3 +97,13 @@ Deno.test("Parse and serialize", () => {
 Deno.test("Unexpected char", () => {
   assertThrows(() => ako.parse("hm !"));
 });
+
+Deno.test("Comments", () => {
+  const data = ako.parse("# viva!\nhm 39");
+  assertEquals(data, { hm: 39 });
+});
+
+Deno.test("Only a comment", () => {
+  const data = ako.parse("# viva! viva");
+  assertEquals(data, null);
+});
