@@ -131,6 +131,16 @@ Deno.test("Identifier with X", () => {
   assertEquals(data_2ndPass, { x86_64: [2, 2] });
 });
 
+Deno.test("Negative numbers", () => {
+  const data = ako.parse("test -1\nfn -0.5");
+  assertEquals(data, { test: -1, fn: -0.5 });
+});
+
+Deno.test("Negative vectors", () => {
+  const data = ako.parse("test -1x-4x5x+2");
+  assertEquals(data, { test: [-1, -4, 5, 2] });
+});
+
 Deno.test("Comments", () => {
   const data = ako.parse("# viva!\nhm 39");
   assertEquals(data, { hm: 39 });

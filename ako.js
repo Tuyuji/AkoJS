@@ -239,9 +239,14 @@ function _tokenize(p_src) {
    * @return {boolean} Returns true if a number could be parsed.
    */
   function parse_digit() {
-    const c = peek();
+    let c = peek();
+    let num = "";
+    if (c === "+" || c === "-") {
+      num += consume();
+      c = peek();
+    }
+
     if (isdigit(c)) {
-      let num = "";
       while (peek() !== null && isdigit(peek())) {
         num += consume();
       }
@@ -299,7 +304,16 @@ function _tokenize(p_src) {
     switch (c) {
       case "+":
       case "-":
-        consume();
+        if (isdigit(peek(1))) {
+          /*
+            Identifiers cant start with a number so, this is a negative number NOT a false variable!
+            We're allowing "+123" which just means we handle this as a positive number token
+            not great but this means we don't add complexity.
+            We wont consume the char, just skip this case.
+           */
+          break;
+        }
+
         tokens.push(
           _make_token(TokenType.Bool, c === "+", startRegion, currentLocation),
         );
