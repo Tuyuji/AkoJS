@@ -21,6 +21,11 @@ Deno.test("Only a comment", () => {
   assertEquals(data, null);
 });
 
+Deno.test("Loose string", () => {
+  assertThrows(()=>ako.parse('val "Hello\nWorld'));
+  assertThrows(()=>ako.parse('val "Hello\nWorld\n\nabc 123\n'));
+});
+
 Deno.test("Simple ShortType", () => {
   const data = ako.parse("test &MyType");
   assertEquals(data, { test: "MyType" });

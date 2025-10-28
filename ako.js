@@ -479,6 +479,18 @@ function _tokenize(p_src) {
           str += consume();
         }
       }
+      if (peek() === null) {
+          throw new Error(
+          "Unterminated string at " +
+            _fmt_text_location(currentLocation),
+          )
+      }
+      if (peek() !== null && peek() !== '"') {
+          throw new Error(
+          "Unterminated string at " +
+            _fmt_text_location(currentLocation),
+          )
+      }
       consume();
       tokens.push(
         _make_token(TokenType.String, str, startRegion, currentLocation),
