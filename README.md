@@ -40,7 +40,7 @@ console.log(
 /*
 -fullscreen
 window [
-    1280x720
+    size 1280x720
 ]
  */
 ```

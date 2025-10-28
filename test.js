@@ -6,6 +6,31 @@ Deno.test("Parse nothing", () => {
   assertEquals(ako.parse(""), null);
 });
 
+Deno.test("String new lines", () => {
+    const data = ako.parse("val \"Hello\nWorld\"");
+    assertEquals(data, { val: "Hello\nWorld" });
+});
+
+Deno.test("Comments", () => {
+    const data = ako.parse("# viva!\nhm 39");
+    assertEquals(data, { hm: 39 });
+});
+
+Deno.test("Only a comment", () => {
+    const data = ako.parse("# viva! viva");
+    assertEquals(data, null);
+});
+
+Deno.test("Simple ShortType", () => {
+    const data = ako.parse("test &MyType");
+    assertEquals(data, { test: "MyType" });
+});
+
+Deno.test("Full ShortType", () => {
+    const data = ako.parse("test &My.Type.Is.Cool");
+    assertEquals(data, { test: "My.Type.Is.Cool" });
+});
+
 Deno.test("Generic serialize", () => {
   const data = {
     "somevec": [
@@ -141,12 +166,3 @@ Deno.test("Negative vectors", () => {
   assertEquals(data, { test: [-1, -4, 5, 2] });
 });
 
-Deno.test("Comments", () => {
-  const data = ako.parse("# viva!\nhm 39");
-  assertEquals(data, { hm: 39 });
-});
-
-Deno.test("Only a comment", () => {
-  const data = ako.parse("# viva! viva");
-  assertEquals(data, null);
-});
