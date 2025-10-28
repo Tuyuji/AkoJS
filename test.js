@@ -1,5 +1,5 @@
 import * as ako from "./ako.js";
-import { assert, assertEquals, assertThrows } from "jsr:@std/assert@1";
+import { assert, assertEquals, assertThrows } from "@std/assert";
 
 Deno.test("Parse nothing", () => {
   assertEquals(ako.parse(null), null);
@@ -7,28 +7,28 @@ Deno.test("Parse nothing", () => {
 });
 
 Deno.test("String new lines", () => {
-    const data = ako.parse("val \"Hello\nWorld\"");
-    assertEquals(data, { val: "Hello\nWorld" });
+  const data = ako.parse('val "Hello\nWorld"');
+  assertEquals(data, { val: "Hello\nWorld" });
 });
 
 Deno.test("Comments", () => {
-    const data = ako.parse("# viva!\nhm 39");
-    assertEquals(data, { hm: 39 });
+  const data = ako.parse("# viva!\nhm 39");
+  assertEquals(data, { hm: 39 });
 });
 
 Deno.test("Only a comment", () => {
-    const data = ako.parse("# viva! viva");
-    assertEquals(data, null);
+  const data = ako.parse("# viva! viva");
+  assertEquals(data, null);
 });
 
 Deno.test("Simple ShortType", () => {
-    const data = ako.parse("test &MyType");
-    assertEquals(data, { test: "MyType" });
+  const data = ako.parse("test &MyType");
+  assertEquals(data, { test: "MyType" });
 });
 
 Deno.test("Full ShortType", () => {
-    const data = ako.parse("test &My.Type.Is.Cool");
-    assertEquals(data, { test: "My.Type.Is.Cool" });
+  const data = ako.parse("test &My.Type.Is.Cool");
+  assertEquals(data, { test: "My.Type.Is.Cool" });
 });
 
 Deno.test("Generic serialize", () => {
@@ -165,4 +165,3 @@ Deno.test("Negative vectors", () => {
   const data = ako.parse("test -1x-4x5x+2");
   assertEquals(data, { test: [-1, -4, 5, 2] });
 });
-

@@ -91,6 +91,7 @@ function _serialize(p_thing, p_indent, p_cur_indent, p_firstrun = false) {
     }
 
     for (const [key, value] of Object.entries(p_thing)) {
+      //TODO: Check if keystr contains any invalid characters that require it to be in double quotes.
       const keystr = key.toString();
       const valuestr = _serialize(value, p_indent, indent_stringing);
 
@@ -540,6 +541,36 @@ function _parse(p_tokens) {
       case TokenType.Bool:
       case TokenType.String:
         return consume().value;
+      case TokenType.And: {
+        //The next token should be an identifier; when using identifiers in
+        //a short type your allowed to have periods in the identifier,
+        //the tokenizer gives us DOT tokentypes so we need to build a string.
+        if (peek(1) === null || peek(1).type !== TokenType.Identifier) {
+          //Invalid start.
+          throw new Error(
+            "ShortType needs to start with an Identifier! at " +
+              _fmt_text_location(peek(0).locStart),
+          );
+        }
+        consume();
+
+        let str = "";
+
+        while (peek(0) !== null && peek().type === TokenType.Identifier) {
+          str += consume().value;
+          if (
+            peek(0) === null ||
+            peek(0) !== null && peek().type !== TokenType.Dot
+          ) {
+            break;
+          }
+          //consume dot to continue
+          consume();
+          str += ".";
+        }
+        return str;
+      }
+
       case TokenType.Int:
       case TokenType.Float: {
         //check if we have a vector cross
