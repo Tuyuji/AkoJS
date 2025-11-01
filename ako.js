@@ -851,6 +851,11 @@ export function parse(src) {
   return _parse(_tokenize(src));
 }
 
+/**
+ * Tokenize Ako string into an array of tokens.
+ * @param src
+ * @return {Array<Token>}
+ */
 export function tokenize(src) {
   return _tokenize(src);
 }
