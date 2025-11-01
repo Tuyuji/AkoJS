@@ -789,3 +789,5 @@ export function serialize(thing, do_formatting = true, use_spaces = false) {
 export function parse(src) {
   return _parse(_tokenize(src));
 }
+
+export function tokenize(src) { return _tokenize(src); }
