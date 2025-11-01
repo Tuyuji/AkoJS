@@ -2,7 +2,7 @@
 /*
 MIT License
 
-Copyright (c) 2024 Tuyuji
+Copyright (c) 2024-2025 Reece Hagan
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,15 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
+
+class AkoError extends Error {
+  constructor(message, locStart, locEnd) {
+    super(message);
+    this.name = "AkoError";
+    this.locStart = locStart;
+    this.locEnd = locEnd;
+  }
+}
 
 function _make_indent(p_indent, p_size) {
   return p_indent.repeat(p_size);
@@ -440,10 +449,12 @@ function _tokenize(p_src) {
           //should have a digit
           if (!parse_digit()) {
             //failed to parse digit and we had an X before, this isn't valid Ako.
-            throw new Error(
+            throw new AkoError(
               `Expected a number after vector delimiter at ${
                 _fmt_text_location(vector_delimiter)
               }`,
+              startRegion,
+              currentLocation,
             );
           }
         }
@@ -480,16 +491,20 @@ function _tokenize(p_src) {
         }
       }
       if (peek() === null) {
-          throw new Error(
+        throw new AkoError(
           "Unterminated string at " +
             _fmt_text_location(currentLocation),
-          )
+          startRegion,
+          currentLocation,
+        );
       }
       if (peek() !== null && peek() !== '"') {
-          throw new Error(
+        throw new AkoError(
           "Unterminated string at " +
             _fmt_text_location(currentLocation),
-          )
+          startRegion,
+          currentLocation,
+        );
       }
       consume();
       tokens.push(
@@ -498,9 +513,11 @@ function _tokenize(p_src) {
       continue;
     }
 
-    throw new Error(
+    throw new AkoError(
       "Unexpected character '" + c + "' at " +
         _fmt_text_location(currentLocation),
+      startRegion,
+      currentLocation,
     );
   }
 
@@ -559,9 +576,11 @@ function _parse(p_tokens) {
         //the tokenizer gives us DOT tokentypes so we need to build a string.
         if (peek(1) === null || peek(1).type !== TokenType.Identifier) {
           //Invalid start.
-          throw new Error(
+          throw new AkoError(
             "ShortType needs to start with an Identifier! at " +
               _fmt_text_location(peek(0).locStart),
+            peek(0).locStart,
+            peek(0).locEnd,
           );
         }
         consume();
@@ -595,9 +614,11 @@ function _parse(p_tokens) {
                 peek(0).type === TokenType.Float)
             ) {
               //cant do vector with anything else
-              throw new Error(
+              throw new AkoError(
                 "Trying to use non vector type in vector at " +
                   _fmt_text_location(peek(0).locStart),
+                peek(0).locStart,
+                peek(0).locEnd,
               );
             }
 
@@ -608,10 +629,12 @@ function _parse(p_tokens) {
             } else {
               //No continue to vector, return what we got
               if (array.length > 4) {
-                throw new Error(
+                throw new AkoError(
                   "Vector size is greater than 4 at " +
                     _fmt_text_location(startLoc) + " to " +
                     _fmt_text_location(peek(-1).locEnd),
+                  startLoc,
+                  peek(-1).locEnd,
                 );
               }
               return array;
@@ -621,9 +644,11 @@ function _parse(p_tokens) {
         return consume().value;
       }
       default:
-        throw new Error(
+        throw new AkoError(
           'Unsupported type "' + peek().type + '" at ' +
             _fmt_text_location(peek().locStart),
+          peek().locStart,
+          peek().locEnd,
         );
     }
   }
@@ -632,7 +657,11 @@ function _parse(p_tokens) {
     if (peek() !== null && peek().type === TokenType.OpenDBrace) {
       consume();
     } else {
-      throw new Error("Open double brace expected");
+      throw new AkoError(
+        "Open double brace expected",
+        peek(0).locStart,
+        peek(0).locEnd,
+      );
     }
 
     const array = [];
@@ -645,7 +674,11 @@ function _parse(p_tokens) {
       consume();
       return array;
     } else {
-      throw new Error("Expected close double brace.");
+      throw new AkoError(
+        "Expected close double brace.",
+        peek(0).locStart,
+        peek(0).locEnd,
+      );
     }
   }
 
@@ -654,7 +687,11 @@ function _parse(p_tokens) {
       if (peek() !== null && peek().type === TokenType.OpenBrace) {
         consume();
       } else {
-        throw new Error("Expected open brace.");
+        throw new AkoError(
+          "Expected open brace.",
+          peek(0).locStart,
+          peek(0).locEnd,
+        );
       }
     }
 
@@ -663,7 +700,11 @@ function _parse(p_tokens) {
     while (peek() !== null && peek().type !== TokenType.CloseBrace) {
       //We need {id, value} or {value, id}
       if (peek(0) === null || peek(1) === null) {
-        throw new Error("Expected two tokens, got only one or zero token(s)");
+        throw new AkoError(
+          "Expected two tokens, got only one or zero token(s)",
+          peek(0).locStart,
+          peek(0).locEnd,
+        );
       }
 
       const firstPeekType = peek().type;
@@ -675,7 +716,11 @@ function _parse(p_tokens) {
           firstPeekType === TokenType.Semicolon
         )
       ) {
-        throw new Error("Expected an identifier, bool or null.");
+        throw new AkoError(
+          "Expected an identifier, bool or null.",
+          peek(0).locStart,
+          peek(0).locEnd,
+        );
       }
 
       parseTableElement(table);
@@ -686,7 +731,11 @@ function _parse(p_tokens) {
         consume();
         return table;
       } else {
-        throw new Error("Expected closing brace for table.");
+        throw new AkoError(
+          "Expected closing brace for table.",
+          peek(0).locStart,
+          peek(0).locEnd,
+        );
       }
     } else {
       return table;
@@ -695,7 +744,11 @@ function _parse(p_tokens) {
 
   function parseTableElement(table) {
     if (peek() === null) {
-      throw new Error("Expected a token, got none");
+      throw new AkoError(
+        "Expected a token, got none",
+        peek(0).locStart,
+        peek(0).locEnd,
+      );
     }
 
     /** @type {null|Token}*/
@@ -708,7 +761,11 @@ function _parse(p_tokens) {
       !(peek().type === TokenType.Identifier ||
         peek().type === TokenType.String)
     ) {
-      throw new Error("Expected an identifier or string.");
+      throw new AkoError(
+        "Expected an identifier or string.",
+        peek(0).locStart,
+        peek(0).locEnd,
+      );
     }
 
     let currentTable = table;
@@ -742,7 +799,11 @@ function _parse(p_tokens) {
     }
 
     if (CTValueId === null) {
-      throw new Error("Failed to get table id");
+      throw new AkoError(
+        "Failed to get table id",
+        peek(0).locStart,
+        peek(0).locEnd,
+      );
     }
 
     if (valueFirst !== null) {
@@ -790,4 +851,6 @@ export function parse(src) {
   return _parse(_tokenize(src));
 }
 
-export function tokenize(src) { return _tokenize(src); }
+export function tokenize(src) {
+  return _tokenize(src);
+}

@@ -22,8 +22,8 @@ Deno.test("Only a comment", () => {
 });
 
 Deno.test("Loose string", () => {
-  assertThrows(()=>ako.parse('val "Hello\nWorld'));
-  assertThrows(()=>ako.parse('val "Hello\nWorld\n\nabc 123\n'));
+  assertThrows(() => ako.parse('val "Hello\nWorld'));
+  assertThrows(() => ako.parse('val "Hello\nWorld\n\nabc 123\n'));
 });
 
 Deno.test("Simple ShortType", () => {

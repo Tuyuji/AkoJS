@@ -11,32 +11,44 @@ type AkoRootObj =
   | JSONValue[];
 
 export interface TextLocation {
-    line: number;
-    column: number;
+  line: number;
+  column: number;
 }
 
 export enum TokenType {
-    None = 0,
-    Bool = 1,
-    Int = 2,
-    Float = 3,
-    String = 4,
-    Identifier = 5,
-    Dot = 6,
-    Semicolon = 7,
-    And = 8,
-    OpenBrace = 9,
-    CloseBrace = 10,
-    OpenDBrace = 11,
-    CloseDBrace = 12,
-    VectorCross = 13,
+  None = 0,
+  Bool = 1,
+  Int = 2,
+  Float = 3,
+  String = 4,
+  Identifier = 5,
+  Dot = 6,
+  Semicolon = 7,
+  And = 8,
+  OpenBrace = 9,
+  CloseBrace = 10,
+  OpenDBrace = 11,
+  CloseDBrace = 12,
+  VectorCross = 13,
 }
 
 export interface Token {
-    type: TokenType;
-    value: any;
-    locStart: TextLocation | null;
-    locEnd: TextLocation | null;
+  type: TokenType;
+  value: null | number | string | boolean;
+  locStart: TextLocation | null;
+  locEnd: TextLocation | null;
+}
+
+export class AkoError extends Error {
+  name: "AkoError";
+  locStart: TextLocation | null;
+  locEnd: TextLocation | null;
+
+  constructor(
+    message: string,
+    locStart?: TextLocation | null,
+    locEnd?: TextLocation | null,
+  );
 }
 
 /**
